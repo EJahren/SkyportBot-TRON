@@ -8,7 +8,7 @@ public class ShootMortarz implements Action {
 
 	private Point p;
 
-	public ShootMortarz(WeaponType w, Point p) {
+	public ShootMortarz(Point p) {
 		this.p = p;
 	}
 
