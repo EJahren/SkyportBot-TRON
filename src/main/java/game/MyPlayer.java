@@ -2,6 +2,7 @@ package game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.omg.CosNaming.NamingContextExtPackage.AddressHelper;
 
@@ -79,7 +80,7 @@ public class MyPlayer implements Runnable {
 				client.upgrade("laser");
 			}
 			
-			if(explosium >= 3 || (me.getPrimary().getLevel() < 2 && explosium >= 3)){
+			if(explosium >= 5 || (me.getPrimary().getLevel() < 2 && explosium >= 3)){
 				actionsLeft--;
 				client.upgrade("mortar");
 			}
@@ -92,6 +93,7 @@ public class MyPlayer implements Runnable {
 			System.out.println("GETTING HITTABLE ENEMIES!");
 			List<Player> primaryHittable = getHittable(state,me.getPosition(),me.getPrimary(),map);
 			List<Player> secondaryHittable = getHittable(state,me.getPosition(),me.getSecondary(),map);
+			System.out.println("HOLY CRAP WE CAN SHOOT LAZERS!!! " + secondaryHittable.size());
 			
 			if(primaryHittable.size() != 0 || secondaryHittable.size() != 0){
 				
@@ -99,14 +101,15 @@ public class MyPlayer implements Runnable {
 			}
 			
 			System.out.println("GETTING HIT ACTION!");
-			for(Player p : primaryHittable){
-				Action act = Utilities.getHitAction(me.getPosition(),me.getPrimary(),p.getPosition());
-				if(act != null)
-					hitActions.add(act);
-			}
-			
 			for(Player p : secondaryHittable){
 				Action act = Utilities.getHitAction(me.getPosition(),me.getSecondary(),p.getPosition());
+				if(act != null){
+					hitActions.add(act);
+				}
+			}
+			
+			for(Player p : primaryHittable){
+				Action act = Utilities.getHitAction(me.getPosition(),me.getPrimary(),p.getPosition());
 				if(act != null)
 					hitActions.add(act);
 			}
@@ -127,9 +130,8 @@ public class MyPlayer implements Runnable {
 				List<Point> minePoints = new ArrayList<Point>();
 				for (int j = 0; j < map.getjLength(); j++) {
 					for (int k = 0; k < map.getkLength(); k++) {
-						System.out.println(j + ":" + k);
 						Tile t = map.getData(new Point(j, k));
-						if (t.equals(Tile.EXPLOSIUM) || t.equals(Tile.RUBIDIUM)) {
+						if (t.equals(Tile.EXPLOSIUM)) {
 							minePoints.add(new Point(j, k));
 						}
 					}
@@ -152,51 +154,50 @@ public class MyPlayer implements Runnable {
 					List<Direction> mvs = Utilities.bfs(map, me.getPosition(),
 							p);
 
-					if (mvs == null) {
-						System.out.println("CANT MOVE TO MINEPOINT, WAT?");
-						continue;
-					}
-
-					for (Direction dir : mvs) {
-						if (actionsLeft <= 0) {
-							System.out.println("NO MOVES LEFT FOR MINE!");
-							break;
+					if (mvs != null) {
+						for (Direction dir : mvs) {
+							if (actionsLeft <= 0) {
+								System.out.println("NO MOVES LEFT FOR MINE!");
+								break;
+							}
+							client.move(dir);
+							actionsLeft--;
 						}
-						client.move(dir);
 					}
 
 				} else {
 					List<Direction> mvs = Utilities.bfs(map, me.getPosition(),
 							state.getPlayers().get(1).getPosition());
 
-					if (mvs == null) {
-						System.out.println("CANT MOVE TOWARDS ENEMY, WAT?");
-						continue;
-					}
-
-					for (Direction dir : mvs) {
-						if (actionsLeft <= 0) {
-							System.out.println("NO MOVES LEFT FOR ENEMY!");
-							break;
+					if (mvs != null) {
+						for (Direction dir : mvs) {
+							if (actionsLeft <= 0) {
+								System.out.println("NO MOVES LEFT FOR ENEMY!");
+								break;
+							}
+							client.move(dir);
+							actionsLeft--;
 						}
-						client.move(dir);
 					}
 					
 				}
 			}
-			
+			if(actionsLeft >= 3){
+				List<Point> mvTo = map.neighbors(me.getPosition());
+				Random rnd = new Random();
+				Point goTo = mvTo.get(rnd.nextInt(mvTo.size()));
+				client.move(me.getPosition().direction(goTo));
+				actionsLeft--;
+			}
 
 		} while (state != null);
 	}
 	
 	private static List<Player> getHittable(GameState state,Point p, Weapon w, Map m){
 		List<Point> shootable = w.inRange(p, m);
-		
-		for(Point prt : shootable){
-			System.out.println(prt.string());
-		}
-		
+
 		List<Player> hittable = new ArrayList<Player>();
+		System.out.println(w.getName() + ":" + shootable.size());
 		
 		for(int i = 1; i < state.getPlayers().size();i++){
 			Player pl = state.getPlayers().get(i);

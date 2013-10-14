@@ -1,5 +1,6 @@
 package game;
 
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 
 import java.util.LinkedList;
@@ -23,12 +24,12 @@ public class Utilities {
 	public static Action getHitAction(Point from, Weapon primary, Point to) {
 		switch(primary.getName()){
 		case MORTAR:
-			if(from.distance(to) <= primary.getLevel() + 1){
+			if(from.distance(to) <= primary.distance()){
 				return new ShootMortarz(new Point(to.getJ()-from.getJ(),to.getK()-from.getK()));
 			}
 			break;
 		case LASER:
-			break;
+			return new ShootLazerz(from.direction(to));
 		}
 		return null;
 
@@ -38,12 +39,9 @@ public class Utilities {
 		TreeMap<Point,Point> cameFrom = new TreeMap<Point,Point>();
 		Queue<Point> q = new LinkedList<Point>();
 		q.add(from);
-		System.out.println("STARTING BFS");
 		while(!q.isEmpty()){
 			Point current = q.poll();
-			System.out.println("At point (" + current.getJ() + "," + current.getK() + ")");
 			if(current.equals(to)){
-				System.out.println("BFS DONE!");
 				return reconstructPath(from,cameFrom,to);
 			}
 			for(Point p : m.neighbors(current)){
@@ -53,7 +51,6 @@ public class Utilities {
 				}
 			}
 		}
-		System.out.println("OMG NO ROUTE FOUND!");
 		return null;
 	}
 

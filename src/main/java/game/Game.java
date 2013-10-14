@@ -10,7 +10,7 @@ public class Game {
         
         // Instantiates two Random Players
         RandomPlayer daneel = new RandomPlayer("Daneel", "localhost", 54321);
-        MyPlayer giskard = new MyPlayer("Giskard", "localhost", 54321);
+        MyPlayer giskard = new MyPlayer("Haskellelephant", "localhost", 54321);
 
         //Starts everything
         //Thread g = new Thread(graphics);
