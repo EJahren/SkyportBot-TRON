@@ -1,5 +1,6 @@
 package game;
 
+import skyport.api.example.BestFirstPlayer;
 import skyport.api.example.RandomPlayer;
 
 public class Game {
@@ -9,7 +10,7 @@ public class Game {
         //MockGraphicsClient graphics = new MockGraphicsClient("localhost", 54331);
         
         // Instantiates two Random Players
-        RandomPlayer daneel = new RandomPlayer("Daneel", "localhost", 54321);
+        BestFirstPlayer daneel = new BestFirstPlayer("Daneel", "localhost", 54321);
         MyPlayer giskard = new MyPlayer("Haskellelephant", "localhost", 54321);
 
         //Starts everything
